@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+build/
+dist/
+*.spec
+# engine + AI models are downloaded by scripts/setup_engine.py (large binaries)
+engine/
+.claude/
+# private notes, not for the public repo
+upscaler-app-brief.md

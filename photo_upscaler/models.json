@@ -1,0 +1,23 @@
+[
+  {
+    "id": "4xLSDIRplusC",
+    "label": "Natural photo",
+    "description": "Best all-round for camera photos. Real-looking hair, skin, fabric and foliage. Also cleans light JPEG artifacts.",
+    "speed": "best quality",
+    "license": "CC-BY-4.0"
+  },
+  {
+    "id": "4xNomos8kSC",
+    "label": "Soft or compressed",
+    "description": "For blurry, heavily compressed or noisy images: phone shots, web downloads, old scans. Smoother result.",
+    "speed": "best quality",
+    "license": "CC-BY-4.0"
+  },
+  {
+    "id": "4xLSDIRCompactC3",
+    "label": "Quick preview",
+    "description": "About 20× faster. Fine for checking a crop or for big batches; use Natural photo for the final print.",
+    "speed": "fast",
+    "license": "CC-BY-4.0"
+  }
+]

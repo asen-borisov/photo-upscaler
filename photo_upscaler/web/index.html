@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Photo Upscaler</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header>
+  <div class="brand"><span class="logo"></span>Photo Upscaler</div>
+  <div class="hdr-note" id="engineNote">Runs 100% on this computer · nothing is uploaded</div>
+</header>
+
+<main>
+  <!-- Queue -->
+  <aside class="panel queue">
+    <div class="panel-head">
+      <h2>Photos</h2>
+      <div class="row gap">
+        <button id="addFiles" class="btn">Add photos</button>
+        <button id="addFolder" class="btn ghost">Add folder</button>
+      </div>
+    </div>
+    <ul id="jobs"></ul>
+    <div id="queueEmpty" class="queue-empty">Drag photos or a folder anywhere in this window.<br><span>JPEG · TIFF · PNG · WebP · HEIC</span></div>
+    <div class="panel-foot">
+      <span id="queueSummary" class="muted"></span>
+      <button id="clearDone" class="link">Clear finished</button>
+    </div>
+  </aside>
+
+  <!-- Viewer -->
+  <section class="viewer" id="viewer">
+    <div class="viewer-bar">
+      <div class="seg" id="zoomSeg">
+        <button data-zoom="fit" class="on">Fit</button>
+        <button data-zoom="1">100%</button>
+        <button data-zoom="2">200%</button>
+      </div>
+      <div id="viewerTitle" class="muted ellipsis"></div>
+      <button id="reveal" class="btn ghost small" hidden>Show in folder</button>
+    </div>
+    <div class="stage" id="stage">
+      <div class="empty" id="stageEmpty">
+        <div class="drop-icon"></div>
+        <p class="big">Drop photos here</p>
+        <p class="muted">When a photo is done, click it in the list to compare <b>before</b> and <b>after</b>.<br>
+          Click the picture to inspect it at 100%. Drag to move around.</p>
+      </div>
+      <div class="compare" id="compare" hidden>
+        <img id="imgBefore" alt="" draggable="false">
+        <img id="imgAfter" alt="" draggable="false">
+        <div class="tag left">Before</div><div class="tag right">After</div>
+        <div class="handle" id="handle"><span></span></div>
+      </div>
+      <div class="loading" id="loading" hidden></div>
+    </div>
+  </section>
+
+  <!-- Settings -->
+  <aside class="panel settings">
+    <div class="panel-head"><h2>Settings</h2></div>
+    <div class="scroll">
+      <section>
+        <h3>AI model</h3>
+        <div id="models" class="models"></div>
+      </section>
+
+      <section>
+        <h3>Output size</h3>
+        <div class="seg full" id="modeSeg">
+          <button data-mode="scale" class="on">Scale</button>
+          <button data-mode="long_edge">Pixels</button>
+          <button data-mode="print">Print</button>
+        </div>
+        <div class="mode" data-for="scale">
+          <div class="seg full" id="scaleSeg">
+            <button data-scale="1.5">1.5×</button><button data-scale="2" class="on">2×</button>
+            <button data-scale="3">3×</button><button data-scale="4">4×</button>
+          </div>
+        </div>
+        <div class="mode" data-for="long_edge" hidden>
+          <label class="field"><input id="longEdge" type="number" min="100" max="40000" step="100" value="6000"><span>px on the longest side</span></label>
+        </div>
+        <div class="mode" data-for="print" hidden>
+          <div class="row gap">
+            <label class="field grow"><input id="printSize" type="number" min="1" step="1" value="60"><span>long side</span></label>
+            <div class="seg" id="unitSeg"><button data-unit="cm" class="on">cm</button><button data-unit="in">in</button></div>
+          </div>
+          <div class="row gap mt">
+            <span class="muted">Print resolution</span>
+            <div class="seg" id="dpiSeg"><button data-dpi="240">240</button><button data-dpi="300" class="on">300</button><button data-dpi="360">360</button></div>
+            <span class="muted">dpi</span>
+          </div>
+        </div>
+        <p class="hint" id="sizeHint"></p>
+      </section>
+
+      <section>
+        <h3>AI strength <span class="val" id="strengthVal">100%</span></h3>
+        <input type="range" id="strength" min="0" max="100" step="5" value="100">
+        <p class="hint">Lower it if a photo looks too "processed". It blends in a classic enlargement for a more natural, film-like result.</p>
+      </section>
+
+      <section>
+        <h3>Save as</h3>
+        <select id="fmt">
+          <option value="same">Same format as the original</option>
+          <option value="jpeg">JPEG</option>
+          <option value="tiff">TIFF (lossless)</option>
+          <option value="png">PNG (lossless)</option>
+        </select>
+        <div id="qualityRow" class="mt">
+          <h3 class="sub">JPEG quality <span class="val" id="qualityVal">95</span></h3>
+          <input type="range" id="quality" min="80" max="100" step="1" value="95">
+        </div>
+        <div class="mt">
+          <div class="muted small">Save to</div>
+          <div class="row gap">
+            <div id="outDir" class="path grow"></div>
+            <button id="pickOut" class="btn ghost small">Change</button>
+            <button id="resetOut" class="link small" hidden>Reset</button>
+          </div>
+        </div>
+        <label class="check mt"><input type="checkbox" id="skipBig" checked> Skip photos that are already that big</label>
+        <p class="hint">Originals are never changed. Colour profile, EXIF and copyright data are copied to the new file.</p>
+      </section>
+    </div>
+    <div class="panel-foot col">
+      <div id="etaTotal" class="muted small"></div>
+      <button id="start" class="btn primary big">Upscale</button>
+      <button id="cancel" class="btn danger big" hidden>Cancel</button>
+      <div id="error" class="error" hidden></div>
+    </div>
+  </aside>
+</main>
+<div id="dropCover" hidden><div>Drop to add</div></div>
+<script src="/static/app.js"></script>
+</body>
+</html>

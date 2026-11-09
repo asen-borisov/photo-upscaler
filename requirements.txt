@@ -1,0 +1,6 @@
+pillow==13.0.0
+pillow-heif==1.8.1
+numpy==2.4.6
+fastapi==0.162.2
+uvicorn==0.54.0
+pywebview==6.2.1
