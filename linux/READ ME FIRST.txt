@@ -1,0 +1,78 @@
+PHOTO UPSCALER for Linux - how to install and use
+=================================================
+
+Makes your photos bigger and sharper with AI, for large prints or tight crops.
+Everything happens on your own computer. Nothing is uploaded. No account. Free to use.
+
+Works on: Ubuntu 22.04 or newer, Linux Mint 21 or newer, Fedora 36 or newer, Pop!_OS, Zorin,
+and most other Linux versions from 2022 onwards.
+
+
+INSTALL (one time, about 2 minutes)
+-----------------------------------
+1. Right-click "PhotoUpscaler-1.0.0-linux.tar.gz" and choose "Extract Here".
+   You get a folder called "Photo Upscaler". Move it somewhere you'll keep it, for example
+   your Home folder or Documents.
+2. Open the folder. Right-click "Add to Applications menu.sh" and choose "Run as a Program".
+   (On some systems: double-click it and choose "Run".)
+   A message says "Done!".
+3. Open your applications menu and search for "Photo Upscaler". Click it.
+
+If step 2 doesn't work, open a Terminal inside the folder (right-click on empty space >
+"Open in Terminal") and type:
+    ./"Add to Applications menu.sh"
+and press Enter.
+
+Important: keep all the files together in the "Photo Upscaler" folder. If you move the folder
+later, run "Add to Applications menu.sh" again.
+
+
+USE IT
+------
+1. Drag photos (or a whole folder) into the window. Or click "Add photos".
+2. On the right, choose:
+     AI model    Natural photo       best for normal camera photos (start with this)
+                 Soft or compressed  for phone pictures, web downloads, old scans
+                 Quick preview       fast check, lower quality
+     Output size Scale     2x makes the photo twice as wide and twice as tall
+                 Pixels    an exact size, e.g. 6000 px on the longest side
+                 Print     enter the print size in cm or inches, e.g. 60 cm at 300 dpi
+3. Click "Upscale". Each photo shows its progress and the time left.
+4. Click a finished photo to compare BEFORE and AFTER. Drag the white line left and right.
+   Click on the picture to see it at 100% (real pixels). Drag to move around.
+   Double-click (or "Fit") to see the whole photo again.
+5. Click "Show in folder" to find the new file.
+
+Where are my new photos?
+   In a folder called "Upscaled" right next to your original photos,
+   named like  IMG_0042_upscaled_2x.jpg
+   (You can choose a different folder under "Save to" > "Change".)
+
+Your originals are NEVER changed or replaced.
+The new file keeps your colour profile, camera info, copyright and Lightroom keywords.
+
+
+GOOD TO KNOW
+------------
+- It is slow on laptops without a graphics card. A photo can take several minutes, and a
+  large camera file (20+ megapixels) can take 30 minutes or more on a basic laptop.
+  Leave it running; you can keep working. "Quick preview" is about 25 times faster.
+- "AI strength": if a photo looks too "processed", lower it to 70-80% for a more natural look.
+- Works with JPEG, TIFF, PNG, WebP and iPhone HEIC files.
+  RAW files (CR3, NEF, ARW...): export them from your photo editor first, then upscale the export.
+- Maximum is 4x per run.
+- Upscale the FINAL edited photo, after retouching, not before.
+
+
+IF SOMETHING GOES WRONG
+-----------------------
+- "The upscaling engine failed": the graphics driver needs Vulkan support.
+  Ubuntu / Mint / Pop!_OS: open a Terminal and type
+      sudo apt install mesa-vulkan-drivers libvulkan1
+  Fedora:
+      sudo dnf install mesa-vulkan-drivers vulkan-loader
+  NVIDIA cards: install the "proprietary" NVIDIA driver (Ubuntu: Software & Updates >
+  Additional Drivers).
+- The app does not open: send this file to whoever set up the app for you:
+      ~/.local/share/PhotoUpscaler/app.log
+  (In the file manager press Ctrl+H to see hidden folders like .local)

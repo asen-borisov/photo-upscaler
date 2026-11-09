@@ -18,11 +18,16 @@ ROOT = Path(__file__).resolve().parent.parent
 ENGINE = ROOT / "engine"
 MODELS = ENGINE / "models"
 
-ENGINE_ZIP = ("https://github.com/upscayl/upscayl-ncnn/releases/download/20251207-174704/"
-              "upscayl-bin-20251207-174704-windows.zip")
-ENGINE_FILES = {  # file inside the zip -> (saved as, sha256)
-    "upscayl-bin.exe": ("upscayl-bin.exe", "294d31be8f29d047c0d91a8dcd5e739616ece56bce3188ac688f9a52d70abe60"),
-    "LICENSE": ("LICENSE-upscayl-bin.txt", "392150e5ad83609ea48366e700c378fb8e97bf2eec5039bc35685039080f7a85"),
+RELEASE = "https://github.com/upscayl/upscayl-ncnn/releases/download/20251207-174704/upscayl-bin-20251207-174704-"
+ENGINES = {  # platform -> (zip url, {file inside the zip -> (saved as, sha256)})
+    "win32": (RELEASE + "windows.zip", {
+        "upscayl-bin.exe": ("upscayl-bin.exe", "294d31be8f29d047c0d91a8dcd5e739616ece56bce3188ac688f9a52d70abe60"),
+        "LICENSE": ("LICENSE-upscayl-bin.txt", "392150e5ad83609ea48366e700c378fb8e97bf2eec5039bc35685039080f7a85"),
+    }),
+    "linux": (RELEASE + "linux.zip", {
+        "upscayl-bin": ("upscayl-bin", "8b0980197d5bdb6fc4fbc0cc50dae721f3df18d91d0d912ec0a3aeea6495367e"),
+        "LICENSE": ("LICENSE-upscayl-bin.txt", "db1a87ba81e885b6bb82971964ab4e202463cde2ac4003571bc5a857d577e4a3"),
+    }),
 }
 CUSTOM = "https://raw.githubusercontent.com/upscayl/custom-models/4b6d2cfa59c7442af115dfc6e50fd8d7d40b96ef/models/"
 _SHA = {  # file -> sha256 (models chosen by the comparison in docs/model-test.md)
@@ -54,15 +59,21 @@ def place(path: Path, data: bytes, expected: str) -> None:
 
 
 def main() -> None:
+    if sys.platform not in ENGINES:
+        sys.exit(f"Unsupported system '{sys.platform}'. Windows and Linux are supported.")
+    engine_zip, engine_files = ENGINES[sys.platform]
     MODELS.mkdir(parents=True, exist_ok=True)
-    if all((ENGINE / d).exists() and sha256((ENGINE / d).read_bytes()) == h for d, h in ENGINE_FILES.values()):
+    if all((ENGINE / d).exists() and sha256((ENGINE / d).read_bytes()) == h for d, h in engine_files.values()):
         print("engine: ok")
     else:
         print("engine: downloading upscayl-bin ...")
-        with zipfile.ZipFile(io.BytesIO(fetch(ENGINE_ZIP))) as z:
-            for name, (dest, expected) in ENGINE_FILES.items():
+        with zipfile.ZipFile(io.BytesIO(fetch(engine_zip))) as z:
+            for name, (dest, expected) in engine_files.items():
                 member = next(m for m in z.namelist() if m.endswith("/" + name) or m == name)
                 place(ENGINE / dest, z.read(member), expected)
+    exe = ENGINE / "upscayl-bin"
+    if exe.exists():
+        exe.chmod(0o755)  # Linux: zip files don't keep the "can run" flag
     for name, (url, expected) in MODEL_FILES.items():
         dst = MODELS / name
         if dst.exists() and sha256(dst.read_bytes()) == expected:

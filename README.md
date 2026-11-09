@@ -7,14 +7,22 @@ computer. Nothing is uploaded, there's no account, and there's no cost per photo
 
 ## Install
 
-1. Download the latest version from the [Releases page](https://github.com/asen-borisov/photo-upscaler/releases/latest):
-   `PhotoUpscaler-…-windows.zip`.
-2. Right-click the zip → **Extract All…** → **Extract**.
-3. Open the new folder and double-click **Photo Upscaler.exe**.
+Download the latest version from the [Releases page](https://github.com/asen-borisov/photo-upscaler/releases/latest).
+Nothing else to install.
+
+**Windows 10 / 11**: `PhotoUpscaler-…-windows.zip`
+1. Right-click the zip → **Extract All…** → **Extract**.
+2. Open the new folder and double-click **Photo Upscaler.exe**.
    The first time, Windows may say "Windows protected your PC": click **More info → Run anyway**.
 
-Nothing else to install. The full step-by-step guide is [READ ME FIRST.txt](READ%20ME%20FIRST.txt)
-(also inside the download).
+Step-by-step guide: [READ ME FIRST.txt](READ%20ME%20FIRST.txt) (also inside the download).
+
+**Linux** (Ubuntu 22.04+, Linux Mint 21+, Fedora 36+ and similar): `PhotoUpscaler-…-linux.tar.gz`
+1. Right-click the file → **Extract Here**, and move the **Photo Upscaler** folder where you'll keep it.
+2. In that folder, right-click **Add to Applications menu.sh** → **Run as a Program**.
+3. Open **Photo Upscaler** from your applications menu.
+
+Step-by-step guide: [linux/READ ME FIRST.txt](linux/READ%20ME%20FIRST.txt) (also inside the download).
 
 ## Use
 
@@ -63,14 +71,28 @@ Everything runs through your graphics card (NVIDIA, AMD or Intel) on your own co
 
 ## For developers
 
-Requirements: Windows 10/11, Python 3.11+.
+Requirements: Python 3.11+ on Windows 10/11 or Linux.
 
 ```bash
-install.bat                      # venv + dependencies + engine/models (checksummed downloads)
-"Start Photo Upscaler.bat"       # run from source
-.venv\Scripts\python -m pytest   # tests (the GPU ones skip if the engine is missing)
-powershell -ExecutionPolicy Bypass -File build.ps1   # build dist\PhotoUpscaler-<version>-windows.zip
+install.bat                      # Windows: venv + dependencies + engine/models (checksummed downloads)
+"Start Photo Upscaler.bat"       # Windows: run from source
+powershell -ExecutionPolicy Bypass -File build.ps1   # Windows: build dist\PhotoUpscaler-<version>-windows.zip
+
+./install.sh && ./start.sh       # Linux: same, from source
+./build.sh                       # Linux: build dist/PhotoUpscaler-<version>-linux.tar.gz
+
+python -m pytest                 # tests (the GPU ones skip if the engine is missing)
 ```
+
+The Linux release is built inside an Ubuntu 22.04 container so it runs on that version and newer:
+
+```bash
+docker build -t photo-upscaler-build linux
+docker run --rm -v "$PWD:/src:ro" -v "$PWD/dist:/out" photo-upscaler-build bash -c \
+  "cp -r /src /work && cd /work && rm -rf .venv dist build engine && ./build.sh && cp dist/*.tar.gz /out/"
+```
+
+On Linux the window uses Qt (bundled); on Windows it uses the built-in Edge WebView2.
 
 | Path | What it is |
 |---|---|

@@ -10,8 +10,9 @@ import traceback
 import webbrowser
 from pathlib import Path
 
-LOG = Path(os.environ.get("LOCALAPPDATA", Path.home())) / "PhotoUpscaler" / "app.log"
-if sys.stdout is None or sys.stderr is None:  # windowed .exe has no console: log to a file instead
+LINUX = sys.platform.startswith("linux")
+LOG = Path(os.environ.get("LOCALAPPDATA") or Path.home() / ".local" / "share") / "PhotoUpscaler" / "app.log"
+if getattr(sys, "frozen", False) or sys.stdout is None:  # packaged app has no visible console: log to a file
     LOG.parent.mkdir(parents=True, exist_ok=True)
     sys.stdout = sys.stderr = open(LOG, "a", encoding="utf-8", buffering=1)
 
@@ -20,7 +21,9 @@ import uvicorn  # noqa: E402  (must come after the stdout fix)
 from photo_upscaler import pipeline
 from photo_upscaler.server import app, queue
 
-IMAGE_TYPES = ("Photos (" + ";".join(f"*{e}" for e in sorted(pipeline.SUPPORTED)) + ")", "All files (*.*)")
+# Upper-case too: Linux file dialogs are case-sensitive (IMG_0042.JPG)
+IMAGE_TYPES = ("Photos (" + ";".join(f"*{e};*{e.upper()}" for e in sorted(pipeline.SUPPORTED)) + ")",
+               "All files (*.*)")
 
 
 def free_port() -> int:
@@ -92,7 +95,7 @@ def main():
     window = webview.create_window("Photo Upscaler", url, js_api=bridge, width=1360, height=820, maximized=True,
                                    min_size=(1100, 680), background_color="#161616")
     bridge._window = window
-    webview.start(on_loaded, window)
+    webview.start(on_loaded, window, gui="qt" if LINUX else None)
     queue.stop()  # window closed: stop any running job
 
 
@@ -101,8 +104,13 @@ if __name__ == "__main__":
         main()
     except Exception:
         traceback.print_exc()
+        msg = f"Photo Upscaler could not start.\n\n{traceback.format_exc()[-800:]}\n\nDetails: {LOG}"
         if os.name == "nt":
             import ctypes
-            ctypes.windll.user32.MessageBoxW(None, f"Photo Upscaler could not start.\n\n{traceback.format_exc()[-800:]}"
-                                             f"\n\nDetails: {LOG}", "Photo Upscaler", 0x10)
+            ctypes.windll.user32.MessageBoxW(None, msg, "Photo Upscaler", 0x10)
+        else:
+            import shutil
+            import subprocess
+            if shutil.which("zenity"):
+                subprocess.run(["zenity", "--error", "--title=Photo Upscaler", f"--text={msg}"])
         raise

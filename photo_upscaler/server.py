@@ -161,8 +161,11 @@ def crop(job_id: int, which: str, x: int, y: int, w: int, h: int, zoom: float = 
 @app.post("/api/reveal/{job_id}")
 def reveal(job_id: int):
     j = _job(job_id)
-    if j.out_path and os.path.exists(j.out_path) and os.name == "nt":
-        subprocess.Popen(["explorer", "/select,", os.path.normpath(j.out_path)])
+    if j.out_path and os.path.exists(j.out_path):
+        if os.name == "nt":
+            subprocess.Popen(["explorer", "/select,", os.path.normpath(j.out_path)])
+        else:  # Linux: open the folder in the default file manager
+            subprocess.Popen(["xdg-open", os.path.dirname(j.out_path)])
     return {"ok": True}
 
 
